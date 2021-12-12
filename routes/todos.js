@@ -7,7 +7,11 @@ const { validateTodo } = require("../models/UserWithTodo");
 
 router.get("/me", auth, async (req, res) => {
   const user = await User.findById(req.user._id);
+
   const userWithTodo = await UserWithTodo.findOne({ email: user.email });
+  if (!!userWithTodo) {
+    userWithTodo.todos = userWithTodo.todos.reverse();
+  }
   res.send(userWithTodo);
 });
 

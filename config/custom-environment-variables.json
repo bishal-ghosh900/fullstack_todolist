@@ -1,3 +1,4 @@
 {
-    "secret": "todo_secret"
+  "secret": "todo_secret",
+  "db": "todo_db"
 }

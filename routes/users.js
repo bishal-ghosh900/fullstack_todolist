@@ -3,10 +3,11 @@ const { User, userValidation } = require("../models/User");
 const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
-const Fawn = require("fawn");
+// const Fawn = require("fawn");
 const config = require("config");
+const jwt = require("jsonwebtoken");
 
-Fawn.init(config.get("db"));
+// Fawn.init(config.get("db"));
 
 router.get("/", async (req, res) => {
   const user = await User.find({});
@@ -33,9 +34,15 @@ router.post("/", async (req, res) => {
     email: req.body.email,
   });
 
-  Fawn.Task().save("users", user).save("userwithtodos", userWithTodo).run();
+  const token = jwt.sign({ _id: user._id }, config.get("secret"));
+  await user.save();
+  await userWithTodo.save();
+  // Fawn.Task().save("users", user).save("userwithtodos", userWithTodo).run();
 
-  res.send(user);
+  res
+    .header("x-auth-token", token)
+    .header("access-control-expose-headers", "x-auth-token")
+    .send(userWithTodo);
 });
 
 module.exports = router;

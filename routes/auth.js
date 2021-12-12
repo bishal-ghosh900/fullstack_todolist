@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Joi = require("joi");
 const { User } = require("../models/User");
+const { UserWithTodo } = require("../models/UserWithTodo");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("config");
@@ -17,7 +18,12 @@ router.post("/", async (req, res) => {
   if (!password) return res.status(400).send("Invalid email or password");
 
   const token = jwt.sign({ _id: user._id }, config.get("secret"));
-  res.header("x-auth-token", token).send(token);
+
+  const userWithTodo = await UserWithTodo.findOne({ email: user.email });
+  res
+    .header("x-auth-token", token)
+    .header("access-control-expose-headers", "x-auth-token")
+    .send(userWithTodo);
 });
 
 function validate(user) {
